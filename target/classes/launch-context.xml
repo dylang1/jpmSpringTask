@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:batch="http://www.springframework.org/schema/batch"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch-2.1.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	
+   <import resource="classpath:/META-INF/spring/module-context.xml" />
+   <bean id="productReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+
+        <!-- <property name="resource" value="file:./sample.csv" /> -->
+        <property name="resource" value="file:./job.csv" />
+
+        <property name="linesToSkip" value="1" />
+
+        <property name="lineMapper">
+            <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+
+                <property name="lineTokenizer">
+                    <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                        <property name="names" value="instrument_type,name,quantity,buy_price,sell_price,coupon" />
+						<property name="strict" value="false"></property>
+                    </bean>
+                </property>
+
+                <property name="fieldSetMapper">
+                    <bean class="com.dyl.jpm.TradeFieldSetMapper" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+      <bean id="filterDataProcessor" class="com.dyl.jpm.DataProcessor" />  
+    
+    <bean id="csvItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter">  
+  <property name="shouldDeleteIfExists" value="true" />  
+  <property name="resource" value="file:./ProfitSummary.csv" />  
+  <property name="lineAggregator">  
+     <bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">  
+    <property name="delimiter" value="," />  
+    <property name="fieldExtractor">  
+       <bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">  
+      <property name="names" value="instrument_type,name,quantity,profit" />  
+        </bean>  
+         </property>  
+        </bean>  
+  </property>  
+  </bean>  
+      <batch:job id="simpleDojJob" job-repository="jobRepository" parent="simpleJob">
+     <batch:step id="step1">
+      <batch:tasklet transaction-manager="transactionManager">
+       <batch:chunk reader="productReader" processor="filterDataProcessor" writer="csvItemWriter" commit-interval="1"/>
+      </batch:tasklet>
+     </batch:step>
+    </batch:job>   
+</beans>
