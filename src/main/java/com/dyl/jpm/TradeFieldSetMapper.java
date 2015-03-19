@@ -17,6 +17,7 @@ public class TradeFieldSetMapper implements FieldSetMapper<Trade>
 		System.out.println(trade.getInstrument_type());
 		trade.setName(fieldSet.readString("name"));
 		trade.setQuantity(fieldSet.readInt("quantity"));
+		//checks if buy is empty and sets it to 0 if it is 
 		if( fieldSet.readString("buy_price").isEmpty())
 		{
 			trade.setBuy_price(0);
@@ -28,6 +29,7 @@ public class TradeFieldSetMapper implements FieldSetMapper<Trade>
 			trade.setBuy_price(fieldSet.readDouble("buy_price"));
 			
 		}
+		//checks if sell is empty and sets it to 0 if it is 
 		if( fieldSet.readString("sell_price").isEmpty())
 		{
 			trade.setSell_price(0);
@@ -40,6 +42,7 @@ public class TradeFieldSetMapper implements FieldSetMapper<Trade>
 			
 		}
 		
+		//checks if coupon is empty and sets it to 0 if it is 
 		if(fieldSet.readString("coupon").isEmpty())
 		{
 			trade.setCoupon(0);
@@ -54,3 +57,4 @@ public class TradeFieldSetMapper implements FieldSetMapper<Trade>
 		
 	}
 }
+o
